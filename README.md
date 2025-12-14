@@ -321,7 +321,7 @@ For questions or issues:
 
 **⭐ If this project helped you understand visual cryptography, consider giving it a star!**
 
-**📖 For complete document
+📖 For complete document
 - `output/vcs/` - VCS shares and decrypted image (2x width)
 - `output/rg/` - Random Grid shares and decrypted image (same size)
 - `output/dhcod/` - DHCOD meaningful shares and decrypted image
@@ -343,5 +343,4 @@ Senior Engineering Student Implementation
 ---
 
 **For detailed information, see [docs/README.md](docs/README.md)**
-"# VC-SG" 
-"# VC-SG" 
+
