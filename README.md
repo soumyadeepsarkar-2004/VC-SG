@@ -344,3 +344,4 @@ Senior Engineering Student Implementation
 
 **For detailed information, see [docs/README.md](docs/README.md)**
 "# VC-SG" 
+"# VC-SG" 
