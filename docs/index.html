@@ -1285,28 +1285,42 @@
                 }
             });
 
-            // Fetch the Markdown file from current location
             const filename = docName === 'index' ? 'index.md' : docName + '.md';
+            
+            // Try fetching locally first. If it fails, fallback to raw github usercontent.
             fetch(filename)
                 .then(response => {
-                    if (!response.ok) throw new Error('File not found');
+                    if (!response.ok) throw new Error('Local file not found');
                     return response.text();
                 })
-                .then(text => {
-                    // Remove YAML front matter if present
-                    let cleanText = text;
-                    if (text.startsWith('---')) {
-                        const endMatter = text.indexOf('---', 3);
-                        if (endMatter !== -1) {
-                            cleanText = text.substring(endMatter + 3).trim();
-                        }
-                    }
-                    // Render HTML
-                    document.getElementById('markdown-container').innerHTML = marked.parse(cleanText);
-                })
+                .then(text => renderMarkdown(text))
                 .catch(err => {
-                    document.getElementById('markdown-container').innerHTML = `<p style="color: var(--accent-violet);">Error loading documentation page (${filename}). Please make sure the repo files are accessible.</p>`;
+                    console.log('Local fetch failed, trying remote fallback...', err);
+                    const remoteUrl = `https://raw.githubusercontent.com/soumyadeepsarkar-2004/VC-SG/main/docs/${filename}`;
+                    fetch(remoteUrl)
+                        .then(response => {
+                            if (!response.ok) throw new Error('Remote file not found');
+                            return response.text();
+                        })
+                        .then(text => renderMarkdown(text))
+                        .catch(remoteErr => {
+                            document.getElementById('markdown-container').innerHTML = 
+                                `<p style="color: var(--accent-violet);">Error loading documentation page (${filename}). Please check connection or verify repository settings.</p>`;
+                        });
                 });
+        }
+
+        function renderMarkdown(text) {
+            // Remove YAML front matter if present
+            let cleanText = text;
+            if (text.startsWith('---')) {
+                const endMatter = text.indexOf('---', 3);
+                if (endMatter !== -1) {
+                    cleanText = text.substring(endMatter + 3).trim();
+                }
+            }
+            // Render HTML
+            document.getElementById('markdown-container').innerHTML = marked.parse(cleanText);
         }
     </script>
 </body>
