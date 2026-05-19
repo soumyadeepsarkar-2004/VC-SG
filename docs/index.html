@@ -204,13 +204,17 @@
 
         /* Hero Landing Section */
         #landing-section {
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             position: relative;
             padding-top: 150px;
+        }
+
+        #landing-section.active {
+            display: flex;
         }
 
         .hero-badge {
