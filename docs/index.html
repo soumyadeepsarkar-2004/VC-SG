@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VC-SG — Visual Cryptography Interactive Platform</title>
+    <meta name="description" content="An interactive research platform demonstrating VCS, Random Grid, and DHCOD visual cryptography schemes.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-violet: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --border-color: #374151;
+            --glass-bg: rgba(17, 24, 39, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-violet);
+        }
+
+        /* Gradients & Background Details */
+        .bg-glow-1 {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bg-glow-2 {
+            position: absolute;
+            top: 40%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Navigation Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4%;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo i {
+            -webkit-text-fill-color: initial;
+            color: var(--accent-violet);
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--text-primary);
+        }
+
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+            border-radius: 2px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-violet) 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Sections Main Styling */
+        section {
+            padding: 100px 4% 60px 4%;
+            min-height: calc(100vh - 70px);
+            display: none;
+        }
+
+        section.active {
+            display: block;
+        }
+
+        /* Hero Landing Section */
+        #landing-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding-top: 150px;
+        }
+
+        .hero-badge {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #a78bfa;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h1.hero-title {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            font-weight: 850;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            max-width: 900px;
+            background: linear-gradient(135deg, #ffffff 30%, #a78bfa 70%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 80px;
+        }
+
+        /* Showcase Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 40px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-violet);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover .card-icon {
+            background: var(--accent-violet);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .glass-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .glass-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Product Interactive Section */
+        #product-section {
+            padding-top: 100px;
+        }
+
+        .product-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .product-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+            outline: none;
+        }
+
+        .control-input:focus {
+            border-color: var(--accent-violet);
+        }
+
+        .control-select {
+            cursor: pointer;
+        }
+
+        /* Draw Canvas / Workspace */
+        .workspace-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .canvas-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .canvas-box {
+            background: #ffffff;
+            border: 4px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+            width: 208px;
+            height: 208px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .canvas-box canvas {
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        /* Custom Stacking Interactive Demo */
+        .stacking-playground {
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.01);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .slider-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .slider-bar {
+            flex-grow: 1;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            position: relative;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-bar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-violet);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+            transition: transform 0.2s ease;
+        }
+
+        .slider-bar::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .stack-box {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background: #ffffff;
+            border: 4px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .stack-box.vcs-mode {
+            width: 400px;
+            height: 200px;
+        }
+
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            pointer-events: none;
+        }
+
+        .layer-1 {
+            opacity: 1;
+        }
+
+        .layer-2 {
+            mix-blend-mode: multiply;
+        }
+
+        /* Preset buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .btn-preset {
+            padding: 10px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-preset:hover, .btn-preset.active {
+            background: var(--accent-violet);
+            border-color: var(--accent-violet);
+            color: white;
+        }
+
+        /* Drawing Tool Actions */
+        .draw-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-draw-action {
+            flex-grow: 1;
+            padding: 8px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-draw-action:hover {
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        /* Comparative Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 40px auto 0 auto;
+        }
+
+        .metric-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+        }
+
+        .metric-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .chart-row {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .chart-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chart-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .chart-bar-container {
+            width: 100%;
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .chart-bar {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease-in-out;
+        }
+
+        .bar-vcs { background: var(--accent-violet); }
+        .bar-rg { background: var(--accent-cyan); }
+        .bar-dhcod { background: var(--accent-emerald); }
+
+        /* Docs Hub Section */
+        .docs-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .docs-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .docs-nav-link {
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: transparent;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .docs-nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .docs-nav-link.active {
+            color: white;
+            background: var(--accent-violet);
+        }
+
+        .docs-content-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            min-height: 500px;
+            line-height: 1.7;
+        }
+
+        /* Markdown Styles Inside Docs Content Card */
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+            font-family: var(--font-display);
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+        .markdown-body h1 { font-size: 2.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .markdown-body h2 { font-size: 1.6rem; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
+        .markdown-body h3 { font-size: 1.25rem; }
+        .markdown-body p { margin-bottom: 16px; color: var(--text-secondary); }
+        .markdown-body ul, .markdown-body ol { margin-left: 20px; margin-bottom: 16px; color: var(--text-secondary); }
+        .markdown-body li { margin-bottom: 6px; }
+        .markdown-body code {
+            font-family: var(--font-mono);
+            background: rgba(255,255,255,0.06);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #f472b6;
+        }
+        .markdown-body pre {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .markdown-body pre code {
+            background: transparent;
+            padding: 0;
+            color: #a78bfa;
+        }
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+        .markdown-body th, .markdown-body td {
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            text-align: left;
+        }
+        .markdown-body th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 40px 4%;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 100px;
+        }
+
+        footer p {
+            margin-bottom: 10px;
+        }
+
+        footer a {
+            color: var(--accent-violet);
+            text-decoration: none;
+        }
+
+        /* Helper Styles */
+        .accent-text-violet { color: var(--accent-violet); }
+        .accent-text-cyan { color: var(--accent-cyan); }
+        .accent-text-emerald { color: var(--accent-emerald); }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <header>
+        <a href="#" class="logo" onclick="switchTab('landing')">
+            <i class="fa-solid fa-key"></i> VC-SG
+        </a>
+        <nav>
+            <a href="#" id="nav-landing" class="active" onclick="switchTab('landing')">Home</a>
+            <a href="#" id="nav-product" onclick="switchTab('product')">Playground</a>
+            <a href="#" id="nav-docs" onclick="switchTab('docs')">Documentation</a>
+        </nav>
+        <div class="nav-buttons">
+            <a href="https://github.com/soumyadeepsarkar-2004/VC-SG" class="btn btn-outline" target="_blank">
+                <i class="fa-brands fa-github"></i> Source Code
+            </a>
+            <button class="btn btn-primary" onclick="switchTab('product')">Get Started</button>
+        </div>
+    </header>
+
+    <!-- SECTION 1: LANDING PAGE HERO -->
+    <section id="landing-section" class="active">
+        <div class="hero-badge">
+            <i class="fa-solid fa-shield-halved"></i> Refactored C++11 Cryptographic Framework
+        </div>
+        <h1 class="hero-title">Visual Cryptography Split & Reconstruction</h1>
+        <p class="hero-subtitle">
+            An academic research prototype transformed into a highly optimized, production-grade cryptographic playground. Split secrets into noise, stack to decrypt.
+        </p>
+
+        <div class="hero-actions">
+            <button class="btn btn-primary" onclick="switchTab('product')">Try Interactive Playground</button>
+            <button class="btn btn-outline" onclick="switchTab('docs')">Explore Tech Specs</button>
+        </div>
+
+        <div class="features-grid">
+            <!-- Card 1 -->
+            <div class="glass-card" onclick="switchTab('product'); changeScheme('vcs');">
+                <div class="card-icon"><i class="fa-solid fa-expand"></i></div>
+                <h3>Naor-Shamir VCS</h3>
+                <p>Features perfect information-theoretic security. Converts each secret pixel into a 2×1 subpixel pair, causing horizontal size expansion.</p>
+            </div>
+            <!-- Card 2 -->
+            <div class="glass-card" onclick="switchTab('product'); changeScheme('rg');">
+                <div class="card-icon"><i class="fa-solid fa-compress"></i></div>
+                <h3>Random Grid (RG)</h3>
+                <p>Maintains space efficiency with zero pixel expansion. Achieves perfect security while matching the exact dimensions of the secret image.</p>
+            </div>
+            <!-- Card 3 -->
+            <div class="glass-card" onclick="switchTab('product'); changeScheme('dhcod');">
+                <div class="card-icon"><i class="fa-solid fa-image"></i></div>
+                <h3>Meaningful Cover (DHCOD)</h3>
+                <p>Hides shares inside custom grayscale cover images using 4×4 Bayer ordered dithering. Decrypts with perfect resolution via digital XOR.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: PRODUCT PLAYGROUND -->
+    <section id="product-section">
+        <div class="product-container">
+            <div class="product-sidebar">
+                <div class="workspace-card">
+                    <h3 style="font-family: var(--font-display);">Controls</h3>
+                    
+                    <div class="control-group">
+                        <label><i class="fa-solid fa-gears"></i> Select Scheme</label>
+                        <select class="control-input control-select" id="scheme-selector" onchange="runEncryption()">
+                            <option value="vcs">VCS (Naor-Shamir 2x Width)</option>
+                            <option value="rg">Random Grid (1x Size)</option>
+                            <option value="dhcod">DHCOD (Meaningful Cover)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label><i class="fa-solid fa-palette"></i> Drawing Templates</label>
+                        <div class="preset-grid">
+                            <button class="btn-preset active" id="preset-star" onclick="drawPreset('star')">Star</button>
+                            <button class="btn-preset" id="preset-key" onclick="drawPreset('key')">Key</button>
+                            <button class="btn-preset" id="preset-secret" onclick="drawPreset('secret')">"LOCK"</button>
+                            <button class="btn-preset" id="preset-draw" onclick="drawPreset('draw')">Draw Free</button>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label><i class="fa-solid fa-paintbrush"></i> Drawing tools</label>
+                        <div class="draw-actions">
+                            <button class="btn-draw-action" onclick="clearCanvas()"><i class="fa-solid fa-trash-can"></i> Clear</button>
+                            <button class="btn-draw-action" onclick="invertCanvas()"><i class="fa-solid fa-circle-half-stroke"></i> Invert</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="workspace-card">
+                <h3 style="font-family: var(--font-display);">Interactive Workspace</h3>
+                
+                <div class="workspace-grid">
+                    <div class="canvas-container">
+                        <span class="canvas-title">1. Secret Image</span>
+                        <div class="canvas-box">
+                            <canvas id="canvas-secret" width="200" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="canvas-container">
+                        <span class="canvas-title">2. Share 1 (Encrypt)</span>
+                        <div class="canvas-box" id="box-share1">
+                            <canvas id="canvas-share1" width="200" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="canvas-container">
+                        <span class="canvas-title">3. Share 2 (Key)</span>
+                        <div class="canvas-box" id="box-share2">
+                            <canvas id="canvas-share2" width="200" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stacking-playground">
+                    <h4 style="font-family: var(--font-display);">4. Visual Decryption Overlay Slider</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Slide Share 2 over Share 1 to physically reconstruct the secret.</p>
+                    
+                    <div class="slider-controls">
+                        <span>Align Off</span>
+                        <input type="range" id="stack-slider" class="slider-bar" min="0" max="100" value="0" oninput="updateSlider(this.value)">
+                        <span>Stacked</span>
+                    </div>
+
+                    <div class="stack-box" id="stack-window">
+                        <canvas id="stack-layer-1" class="layer layer-1"></canvas>
+                        <canvas id="stack-layer-2" class="layer layer-2"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard / Comparative metrics -->
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <h3><i class="fa-solid fa-chart-simple accent-text-violet"></i> Contrast Ratio (Higher is Better)</h3>
+                <div class="chart-row">
+                    <div class="chart-item">
+                        <div class="chart-label"><span>VCS (Naor-Shamir)</span> <span>33.3%</span></div>
+                        <div class="chart-bar-container"><div class="chart-bar bar-vcs" style="width: 33.3%"></div></div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label"><span>Random Grid</span> <span>33.5%</span></div>
+                        <div class="chart-bar-container"><div class="chart-bar bar-rg" style="width: 33.5%"></div></div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label"><span>DHCOD (Meaningful Cover)</span> <span>88.3%</span></div>
+                        <div class="chart-bar-container"><div class="chart-bar bar-dhcod" style="width: 88.3%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3><i class="fa-solid fa-brain accent-text-cyan"></i> Share Entropy (Target: 1.0 bpp for Perfect Security)</h3>
+                <div class="chart-row">
+                    <div class="chart-item">
+                        <div class="chart-label"><span>VCS (Naor-Shamir)</span> <span>1.000 bpp</span></div>
+                        <div class="chart-bar-container"><div class="chart-bar bar-vcs" style="width: 100%"></div></div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label"><span>Random Grid</span> <span>1.000 bpp</span></div>
+                        <div class="chart-bar-container"><div class="chart-bar bar-rg" style="width: 100%"></div></div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label"><span>DHCOD (Meaningful Cover)</span> <span>0.999 bpp</span></div>
+                        <div class="chart-bar-container"><div class="chart-bar bar-dhcod" style="width: 99.9%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: DOCUMENTATION HUB -->
+    <section id="docs-section">
+        <div class="docs-container">
+            <div class="docs-sidebar">
+                <button class="docs-nav-link active" onclick="loadDoc('index')"><i class="fa-solid fa-book"></i> Overview</button>
+                <button class="docs-nav-link" onclick="loadDoc('algorithms')"><i class="fa-solid fa-gears"></i> Algorithms</button>
+                <button class="docs-nav-link" onclick="loadDoc('results')"><i class="fa-solid fa-flask"></i> Results</button>
+                <button class="docs-nav-link" onclick="loadDoc('api')"><i class="fa-solid fa-code"></i> API Reference</button>
+            </div>
+            <div class="docs-content-card markdown-body" id="markdown-container">
+                <!-- Content will load dynamically from index.md, algorithms.md, etc. -->
+                Loading documentation...
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Visual Cryptography Evaluation Platform — Refactored C++11 Backend & Web Simulator</p>
+        <p>Created by <a href="https://github.com/soumyadeepsarkar-2004" target="_blank">soumyadeepsarkar-2004</a>. Available under academic open source license.</p>
+    </footer>
+
+    <!-- INTERACTIVE SCRIPT -->
+    <script>
+        // Tab switching
+        function switchTab(tabId) {
+            document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(nav => nav.classList.remove('active'));
+            
+            const activeSec = document.getElementById(tabId + '-section');
+            if (activeSec) activeSec.classList.add('active');
+
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) activeNav.classList.add('active');
+
+            if (tabId === 'docs') {
+                loadDoc(currentDoc);
+            }
+        }
+
+        function changeScheme(scheme) {
+            document.getElementById('scheme-selector').value = scheme;
+            runEncryption();
+        }
+
+        // Drawpad functions
+        const canvasSecret = document.getElementById('canvas-secret');
+        const ctxSecret = canvasSecret.getContext('2d');
+        let isDrawing = false;
+        let activePreset = 'star';
+
+        ctxSecret.fillStyle = 'white';
+        ctxSecret.fillRect(0, 0, 200, 200);
+
+        canvasSecret.addEventListener('mousedown', startDrawing);
+        canvasSecret.addEventListener('mousemove', draw);
+        canvasSecret.addEventListener('mouseup', stopDrawing);
+        canvasSecret.addEventListener('mouseout', stopDrawing);
+        
+        canvasSecret.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e.touches[0]); });
+        canvasSecret.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+        canvasSecret.addEventListener('touchend', stopDrawing);
+
+        function startDrawing(e) {
+            if (activePreset !== 'draw') return;
+            isDrawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing || activePreset !== 'draw') return;
+            const rect = canvasSecret.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (200 / rect.width);
+            const y = (e.clientY - rect.top) * (200 / rect.height);
+            
+            ctxSecret.fillStyle = 'black';
+            ctxSecret.beginPath();
+            ctxSecret.arc(x, y, 10, 0, Math.PI * 2);
+            ctxSecret.fill();
+            runEncryption();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function clearCanvas() {
+            ctxSecret.fillStyle = 'white';
+            ctxSecret.fillRect(0, 0, 200, 200);
+            runEncryption();
+        }
+
+        function invertCanvas() {
+            const imgData = ctxSecret.getImageData(0, 0, 200, 200);
+            for (let i = 0; i < imgData.data.length; i += 4) {
+                imgData.data[i] = 255 - imgData.data[i];
+                imgData.data[i+1] = 255 - imgData.data[i+1];
+                imgData.data[i+2] = 255 - imgData.data[i+2];
+            }
+            ctxSecret.putImageData(imgData, 0, 0);
+            runEncryption();
+        }
+
+        function drawPreset(preset) {
+            activePreset = preset;
+            document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('preset-' + preset).classList.add('active');
+
+            clearCanvas();
+            if (preset === 'star') {
+                ctxSecret.fillStyle = 'black';
+                ctxSecret.beginPath();
+                ctxSecret.moveTo(100, 20);
+                ctxSecret.lineTo(125, 80);
+                ctxSecret.lineTo(190, 85);
+                ctxSecret.lineTo(140, 130);
+                ctxSecret.lineTo(155, 190);
+                ctxSecret.lineTo(100, 155);
+                ctxSecret.lineTo(45, 190);
+                ctxSecret.lineTo(60, 130);
+                ctxSecret.lineTo(10, 85);
+                ctxSecret.lineTo(75, 80);
+                ctxSecret.closePath();
+                ctxSecret.fill();
+            } else if (preset === 'key') {
+                ctxSecret.fillStyle = 'black';
+                // Head
+                ctxSecret.beginPath();
+                ctxSecret.arc(70, 100, 40, 0, Math.PI * 2);
+                ctxSecret.arc(70, 100, 15, 0, Math.PI * 2, true);
+                ctxSecret.fill();
+                // Shaft
+                ctxSecret.fillRect(110, 88, 70, 24);
+                // Teeth
+                ctxSecret.fillRect(150, 112, 12, 20);
+                ctxSecret.fillRect(168, 112, 12, 20);
+            } else if (preset === 'secret') {
+                ctxSecret.fillStyle = 'black';
+                ctxSecret.font = 'bold 36px var(--font-display)';
+                ctxSecret.textAlign = 'center';
+                ctxSecret.textBaseline = 'middle';
+                ctxSecret.fillText('LOCK', 100, 100);
+            }
+            runEncryption();
+        }
+
+        // Encryption Engine
+        function runEncryption() {
+            const scheme = document.getElementById('scheme-selector').value;
+            const w = 200;
+            const h = 200;
+
+            const secretData = ctxSecret.getImageData(0, 0, w, h);
+            const secretPixels = new Uint8Array(w * h);
+            for (let i = 0; i < secretData.data.length; i += 4) {
+                // Thresh at 128: true is black, false is white
+                secretPixels[i/4] = (secretData.data[i] < 128) ? 1 : 0;
+            }
+
+            const canvasShare1 = document.getElementById('canvas-share1');
+            const canvasShare2 = document.getElementById('canvas-share2');
+            const boxShare1 = document.getElementById('box-share1');
+            const boxShare2 = document.getElementById('box-share2');
+            const stackWin = document.getElementById('stack-window');
+
+            if (scheme === 'vcs') {
+                // Set sizes
+                canvasShare1.width = 400;
+                canvasShare1.height = 200;
+                canvasShare2.width = 400;
+                canvasShare2.height = 200;
+                boxShare1.style.width = '408px';
+                boxShare2.style.width = '408px';
+                stackWin.classList.add('vcs-mode');
+
+                const s1Ctx = canvasShare1.getContext('2d');
+                const s2Ctx = canvasShare2.getContext('2d');
+                const s1Img = s1Ctx.createImageData(400, 200);
+                const s2Img = s2Ctx.createImageData(400, 200);
+
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        const idx = y * w + x;
+                        const pixel = secretPixels[idx];
+                        const r = Math.random() < 0.5;
+
+                        // VCS pattern mapping: 1 is black, 0 is white
+                        let p1, p2;
+                        if (pixel === 0) { // White
+                            p1 = r ? [1, 0] : [0, 1];
+                            p2 = p1;
+                        } else { // Black
+                            p1 = r ? [1, 0] : [0, 1];
+                            p2 = r ? [0, 1] : [1, 0];
+                        }
+
+                        // Write subpixels
+                        for (let sub = 0; sub < 2; sub++) {
+                            const destIdx = (y * 400 + (x * 2 + sub)) * 4;
+                            const v1 = p1[sub] ? 0 : 255;
+                            s1Img.data[destIdx] = v1;
+                            s1Img.data[destIdx+1] = v1;
+                            s1Img.data[destIdx+2] = v1;
+                            s1Img.data[destIdx+3] = 255;
+
+                            const v2 = p2[sub] ? 0 : 255;
+                            s2Img.data[destIdx] = v2;
+                            s2Img.data[destIdx+1] = v2;
+                            s2Img.data[destIdx+2] = v2;
+                            s2Img.data[destIdx+3] = 255;
+                        }
+                    }
+                }
+                s1Ctx.putImageData(s1Img, 0, 0);
+                s2Ctx.putImageData(s2Img, 0, 0);
+
+            } else if (scheme === 'rg') {
+                // Set sizes
+                canvasShare1.width = 200;
+                canvasShare1.height = 200;
+                canvasShare2.width = 200;
+                canvasShare2.height = 200;
+                boxShare1.style.width = '208px';
+                boxShare2.style.width = '208px';
+                stackWin.classList.remove('vcs-mode');
+
+                const s1Ctx = canvasShare1.getContext('2d');
+                const s2Ctx = canvasShare2.getContext('2d');
+                const s1Img = s1Ctx.createImageData(200, 200);
+                const s2Img = s2Ctx.createImageData(200, 200);
+
+                for (let i = 0; i < w * h; i++) {
+                    const pixel = secretPixels[i];
+                    const r = Math.random() < 0.5 ? 1 : 0;
+                    const destIdx = i * 4;
+
+                    const v1 = r ? 0 : 255;
+                    s1Img.data[destIdx] = v1;
+                    s1Img.data[destIdx+1] = v1;
+                    s1Img.data[destIdx+2] = v1;
+                    s1Img.data[destIdx+3] = 255;
+
+                    // If white: share2 = share1. If black: share2 = NOT share1
+                    const v2 = (pixel === 0) ? v1 : (255 - v1);
+                    s2Img.data[destIdx] = v2;
+                    s2Img.data[destIdx+1] = v2;
+                    s2Img.data[destIdx+2] = v2;
+                    s2Img.data[destIdx+3] = 255;
+                }
+                s1Ctx.putImageData(s1Img, 0, 0);
+                s2Ctx.putImageData(s2Img, 0, 0);
+
+            } else if (scheme === 'dhcod') {
+                // Meaningful covers: generate a checkered cover pattern
+                canvasShare1.width = 200;
+                canvasShare1.height = 200;
+                canvasShare2.width = 200;
+                canvasShare2.height = 200;
+                boxShare1.style.width = '208px';
+                boxShare2.style.width = '208px';
+                stackWin.classList.remove('vcs-mode');
+
+                const s1Ctx = canvasShare1.getContext('2d');
+                const s2Ctx = canvasShare2.getContext('2d');
+                const s1Img = s1Ctx.createImageData(200, 200);
+                const s2Img = s2Ctx.createImageData(200, 200);
+
+                // 4x4 Bayer Matrix
+                const bayer = [
+                    [0,  8,  2, 10],
+                    [12, 4,  14, 6],
+                    [3,  11, 1,  9],
+                    [15, 7,  13, 5]
+                ];
+
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        const idx = y * w + x;
+                        const pixel = secretPixels[idx];
+                        
+                        // Create a circular gradient cover pattern
+                        const dx = x - 100;
+                        const dy = y - 100;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const coverVal = Math.max(0, Math.min(255, 255 - dist * 1.8));
+
+                        // Halftone the cover
+                        const bayerVal = bayer[y % 4][x % 4] * 17;
+                        const s1Pixel = (coverVal > bayerVal) ? 0 : 1; // 0 = white, 1 = black
+                        
+                        const destIdx = idx * 4;
+                        const v1 = s1Pixel ? 0 : 255;
+                        s1Img.data[destIdx] = v1;
+                        s1Img.data[destIdx+1] = v1;
+                        s1Img.data[destIdx+2] = v1;
+                        s1Img.data[destIdx+3] = 255;
+
+                        // For black secret pixel: complementary. For white: same.
+                        const v2 = (pixel === 0) ? v1 : (255 - v1);
+                        s2Img.data[destIdx] = v2;
+                        s2Img.data[destIdx+1] = v2;
+                        s2Img.data[destIdx+2] = v2;
+                        s2Img.data[destIdx+3] = 255;
+                    }
+                }
+                s1Ctx.putImageData(s1Img, 0, 0);
+                s2Ctx.putImageData(s2Img, 0, 0);
+            }
+
+            // Sync stacking layers
+            const sl1 = document.getElementById('stack-layer-1');
+            const sl2 = document.getElementById('stack-layer-2');
+            
+            sl1.width = canvasShare1.width;
+            sl1.height = canvasShare1.height;
+            sl2.width = canvasShare2.width;
+            sl2.height = canvasShare2.height;
+
+            const sl1Ctx = sl1.getContext('2d');
+            const sl2Ctx = sl2.getContext('2d');
+            sl1Ctx.drawImage(canvasShare1, 0, 0);
+            sl2Ctx.drawImage(canvasShare2, 0, 0);
+
+            // Trigger slider update
+            updateSlider(document.getElementById('stack-slider').value);
+        }
+
+        function updateSlider(val) {
+            const scheme = document.getElementById('scheme-selector').value;
+            const sl2 = document.getElementById('stack-layer-2');
+            
+            // Map 0-100 to offset coordinate
+            const maxOffset = (scheme === 'vcs') ? 400 : 200;
+            const offset = maxOffset - (val / 100 * maxOffset);
+
+            // Shift layer 2 horizontally
+            sl2.style.transform = `translateX(${offset}px)`;
+        }
+
+        // Initialize Playground
+        drawPreset('star');
+
+        // Documentation Loader
+        let currentDoc = 'index';
+        function loadDoc(docName) {
+            currentDoc = docName;
+            document.querySelectorAll('.docs-nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick').includes(docName)) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Fetch the Markdown file from current location
+            const filename = docName === 'index' ? 'index.md' : docName + '.md';
+            fetch(filename)
+                .then(response => {
+                    if (!response.ok) throw new Error('File not found');
+                    return response.text();
+                })
+                .then(text => {
+                    // Remove YAML front matter if present
+                    let cleanText = text;
+                    if (text.startsWith('---')) {
+                        const endMatter = text.indexOf('---', 3);
+                        if (endMatter !== -1) {
+                            cleanText = text.substring(endMatter + 3).trim();
+                        }
+                    }
+                    // Render HTML
+                    document.getElementById('markdown-container').innerHTML = marked.parse(cleanText);
+                })
+                .catch(err => {
+                    document.getElementById('markdown-container').innerHTML = `<p style="color: var(--accent-violet);">Error loading documentation page (${filename}). Please make sure the repo files are accessible.</p>`;
+                });
+        }
+    </script>
+</body>
+</html>
