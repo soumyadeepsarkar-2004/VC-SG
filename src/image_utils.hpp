@@ -4,32 +4,47 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <random>
 
 struct Image {
     int width;
     int height;
-    std::vector<std::vector<int>> pixels; // 0 for black, 1 for white (or 0-255 for grayscale)
+    int maxVal;      // PGM max value (typically 255)
+    bool isBinary;   // true if pixels are 0/1 (internal: 0=White, 1=Black)
+    std::vector<std::vector<int>> pixels;
 
-    Image(int w, int h, int val = 0) : width(w), height(h), pixels(h, std::vector<int>(w, val)) {}
+    Image() : width(0), height(0), maxVal(255), isBinary(false) {}
+    Image(int w, int h, int val = 0)
+        : width(w), height(h), maxVal(255), isBinary(false),
+          pixels(h, std::vector<int>(w, val)) {}
+
+    bool empty() const { return width == 0 || height == 0; }
 };
 
+// --- I/O ---
 // Load a PGM image (P2 or P5). Returns an empty image on failure.
 Image loadPGM(const std::string& filename);
 
-// Save a PGM image (P2 ASCII for readability, or P5 for compactness).
-// Using P2 (ASCII) for easier debugging.
+// Save a PGM image (P2 ASCII).
+// If img.isBinary: maps internal 0->255(White), 1->0(Black).
+// If !img.isBinary: writes pixel values as-is.
 bool savePGM(const std::string& filename, const Image& img);
 
-// Convert a grayscale image to strict binary (0 or 1) using a threshold.
-// 0 = Black, 1 = White.
-// Note: In standard PGM, 0 is black, 255 is white.
-// Our VCS logic usually treats 1 as Black (ink) and 0 as White (paper) or vice versa.
-// Let's standardise: INTERNAL representation: 0 = White/Transparent, 1 = Black/Opaque.
-// When saving to PGM: 0 -> 255 (White), 1 -> 0 (Black).
+// --- Processing ---
+// Convert grayscale to binary (internal: 0=White, 1=Black). Output has isBinary=true.
 Image binarizeImage(const Image& input, int threshold = 128);
 
-// Halftone an image using Ordered Dithering (Bayer Matrix).
-// Returns a binary image (0=White, 1=Black).
+// Halftone using 4x4 Bayer ordered dithering. Output has isBinary=true.
 Image halftoneImage(const Image& input);
+
+// Nearest-neighbor resize.
+Image resizeImage(const Image& input, int newWidth, int newHeight);
+
+// --- Utilities ---
+// Cryptographically better random bit (0 or 1) using Mersenne Twister.
+int randomBit();
+
+// Ensure a directory path exists (creates parent dirs as needed).
+void ensureDirectories(const std::string& path);
 
 #endif // IMAGE_UTILS_HPP
